@@ -42,6 +42,8 @@ namespace Artisan.RawInformation
         {
             var hotbar = index / 12;
             var relativeLocation = index % 12;
+            HotBarRef = null;
+            HotBarSlotRef = null;
 
             if (hotbar == 0)
             {
@@ -61,7 +63,7 @@ namespace Artisan.RawInformation
                 }
             }
 
-            if (HotBarSlotRef != null && HotBarRef->IsVisible)
+            if (HotBarRef != null && HotBarSlotRef != null && HotBarRef->IsVisible)
             {
                 DrawOutline(HotBarSlotRef);
             }
