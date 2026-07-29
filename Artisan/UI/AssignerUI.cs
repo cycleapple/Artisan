@@ -36,7 +36,7 @@ namespace Artisan.UI
 
         public static void Draw()
         {
-            ImGuiEx.TextWrapped($"This tab allows you to quickly assign solvers and consumables to recipes based on recipe criteria.");
+            ImGuiEx.TextWrapped($"此分頁可依照配方條件，快速為多個配方指定求解器與消耗品。");
             ImGui.Separator();
             ImGui.Spacing();
             DrawCriteria();
@@ -45,7 +45,7 @@ namespace Artisan.UI
 
         private static void DrawCriteria()
         {
-            ImGuiEx.TextCentered($"Criteria");
+            ImGuiEx.TextCentered($"篩選條件");
             DrawAssignOptions();
         }
 
@@ -66,8 +66,8 @@ namespace Artisan.UI
             DummyConfig.DrawSquadronManual();
             DummyConfig.DrawSolver(c, false, false);
 
-            ImGui.Checkbox("Show which crafts have been assigned as a notification", ref Notification);
-            if (ImGui.Button("Assign To All", new Vector2(ImGui.GetContentRegionAvail().X, 25f.Scale())))
+            ImGui.Checkbox("以通知顯示已完成指定的配方", ref Notification);
+            if (ImGui.Button("套用至全部", new Vector2(ImGui.GetContentRegionAvail().X, 25f.Scale())))
             {
                 foreach (var rec in filteredRecipes)
                 {
@@ -83,7 +83,7 @@ namespace Artisan.UI
                     };
                     if (Notification)
                     {
-                        P.TM.Enqueue(() => Notify.Success($"Assigned {rec.CraftType.Value.Name} - {rec.ItemResult.Value.Name}"));
+                        P.TM.Enqueue(() => Notify.Success($"已指定：{rec.CraftType.Value.Name}－{rec.ItemResult.Value.Name}"));
                         P.TM.DelayNext(75);
                     }
                 }
