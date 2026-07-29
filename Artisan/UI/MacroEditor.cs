@@ -249,7 +249,7 @@ namespace Artisan.UI
 
                         if (ImGui.Checkbox($"安定", ref step.ExcludeCentered))
                             P.Config.Save();
-                        if (ImGui.Checkbox($"堅固", ref step.ExcludeSturdy))
+                        if (ImGui.Checkbox($"結實", ref step.ExcludeSturdy))
                             P.Config.Save();
                         if (ImGui.Checkbox($"高效", ref step.ExcludePliant))
                             P.Config.Save();

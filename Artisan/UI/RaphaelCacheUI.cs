@@ -13,30 +13,30 @@ namespace Artisan.UI
         private static bool _oldVersion = false;
         internal static void Draw()
         {
-            ImGui.TextWrapped("This tab will allow you to view macros in the Raphael integration cache.");
+            ImGui.TextWrapped("此頁面可檢視 Raphael 整合功能快取中的巨集。");
             ImGui.Separator();
 
             if (Svc.ClientState.IsLoggedIn && Crafting.CurState is not Crafting.State.IdleNormal and not Crafting.State.IdleBetween)
             {
-                ImGui.Text($"Crafting in progress. Macro settings will be unavailable until you stop crafting.");
+                ImGui.Text($"目前正在製作。停止製作前無法使用巨集設定。");
                 return;
             }
             ImGui.Spacing();
 
-            if (ImGui.RadioButton("Old Cache (not in use)", _oldVersion))
+            if (ImGui.RadioButton("舊版快取（未使用）", _oldVersion))
                 _oldVersion = true;
             ImGui.SameLine();
-            if (ImGui.RadioButton("New Cache", !_oldVersion))
+            if (ImGui.RadioButton("新版快取", !_oldVersion))
                 _oldVersion = false;
 
-            ImGui.InputText($"Search", ref _search, 300);
+            ImGui.InputText($"搜尋", ref _search, 300);
 
             if (!_oldVersion)
             {
 
                 if (ImGui.BeginChild("##selector", new Vector2(ImGui.GetContentRegionAvail().X, ImGui.GetContentRegionAvail().Y - 32f.Scale()), true))
                 {
-                    ImGuiEx.TextUnderlined($"Level/Progress/Quality/Durability-Craftsmanship/Control/CP-Type/Initial Quality");
+                    ImGuiEx.TextUnderlined($"等級／作業進度／品質／耐久／作業精度／加工精度／製作力／類型／初始品質");
                     foreach (var key in P.Config.RaphaelSolverCacheV3.Keys)
                     {
                         var m = P.Config.RaphaelSolverCacheV3[key];
@@ -58,7 +58,7 @@ namespace Artisan.UI
 
                 if (ImGui.BeginChild("##selector", new Vector2(ImGui.GetContentRegionAvail().X, ImGui.GetContentRegionAvail().Y - 32f.Scale()), true))
                 {
-                    ImGuiEx.TextUnderlined($"Level/Progress/Quality/Durability-Craftsmanship/Control/CP-Type");
+                    ImGuiEx.TextUnderlined($"等級／作業進度／品質／耐久／作業精度／加工精度／製作力／類型");
                     foreach (var key in P.Config.RaphaelSolverCacheV2.Keys)
                     {
                         var m = P.Config.RaphaelSolverCacheV2[key];
@@ -76,7 +76,7 @@ namespace Artisan.UI
 
             }
 
-            if (ImGui.Button("Clear This Raphael Cache (Hold Ctrl)", new Vector2(ImGui.GetContentRegionAvail().X, ImGui.GetContentRegionAvail().Y)) && ImGui.GetIO().KeyCtrl)
+            if (ImGui.Button("清除此 Raphael 快取（按住 Ctrl）", new Vector2(ImGui.GetContentRegionAvail().X, ImGui.GetContentRegionAvail().Y)) && ImGui.GetIO().KeyCtrl)
             {
                 if (_oldVersion)
                     P.Config.RaphaelSolverCacheV2.Clear();
