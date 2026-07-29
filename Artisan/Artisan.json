@@ -1,8 +1,8 @@
 {
     "Author": "Taurenkey (Puni.sh)",
     "Name": "Artisan",
-    "Punchline": "A 'simple' crafting plugin.",
-    "Description": "The all-in-one crafting plugin.",
+    "Punchline": "全方位生產製作輔助插件。",
+    "Description": "提供製作求解、製作清單、巨集與耐久製作等功能。",
     "InternalName": "Artisan",
     "ApplicableVersion": "any",
     "IconUrl": "https://s3.puni.sh/media/plugin/6/icon-3h8wd5b9qr.png",

@@ -43,19 +43,19 @@ namespace Artisan.UI
 
         internal static void Draw()
         {
-            ImGui.TextWrapped("This tab will allow you to add macros that Artisan can use instead of its own decisions. Once you create a new macro, click on it from the list below to open up the macro editor window for your macro.");
+            ImGui.TextWrapped("你可以在此新增巨集，讓 Artisan 按照巨集執行，而非自行判斷技能。建立巨集後，請從下方清單點選巨集以開啟編輯器。");
             ImGui.Separator();
 
             if (Svc.ClientState.IsLoggedIn && Crafting.CurState is not Crafting.State.IdleNormal and not Crafting.State.IdleBetween)
             {
-                ImGui.Text($"Crafting in progress. Macro settings will be unavailable until you stop crafting.");
+                ImGui.Text("正在製作中。停止製作前無法調整巨集設定。");
                 return;
             }
             ImGui.Spacing();
-            if (ImGui.Button("Import Macro From Clipboard"))
+            if (ImGui.Button("從剪貼簿匯入巨集"))
                 OpenMacroNamePopup(MacroNameUse.FromClipboard);
 
-            if (ImGui.Button("Import Macro From Clipboard (Artisan Export)"))
+            if (ImGui.Button("從剪貼簿匯入巨集（Artisan 匯出格式）"))
             {
                 try
                 {
@@ -69,11 +69,11 @@ namespace Artisan.UI
                 catch (Exception ex)
                 {
                     ex.Log();
-                    Notify.Error("Unable to import.");
+                    Notify.Error("無法匯入。");
                 }
             }
 
-            if (ImGui.Button("New Macro"))
+            if (ImGui.Button("新增巨集"))
                 OpenMacroNamePopup(MacroNameUse.NewMacro);
 
             DrawMacroNamePopup(MacroNameUse.FromClipboard);
@@ -82,14 +82,14 @@ namespace Artisan.UI
             if (P.Config.MacroSolverConfig.Macros.Count > 0)
             {
                 if (P.Config.MacroSolverConfig.Macros.Count > 1)
-                    ImGui.Checkbox("Reorder Mode (Click and Drag to Reorder)", ref reorderMode);
+                    ImGui.Checkbox("排序模式（拖曳以重新排序）", ref reorderMode);
                 else
                     reorderMode = false;
 
                 if (reorderMode)
-                    ImGuiEx.CenterColumnText("Reorder Mode");
+                    ImGuiEx.CenterColumnText("排序模式");
                 else
-                    ImGuiEx.CenterColumnText("Macro Editor Select");
+                    ImGuiEx.CenterColumnText("選擇要編輯的巨集");
 
                 if (ImGui.BeginChild("##selector", new Vector2(ImGui.GetContentRegionAvail().X, ImGui.GetContentRegionAvail().Y), true))
                 {
@@ -97,7 +97,7 @@ namespace Artisan.UI
                     {
                         var m = P.Config.MacroSolverConfig.Macros[i];
                         int cpCost = GetCPCost(m);
-                        var selected = ImGui.Selectable($"{m.Name} (CP Cost: {cpCost}) (ID: {m.ID})###{m.ID}");
+                        var selected = ImGui.Selectable($"{m.Name}（CP 消耗：{cpCost}）（ID：{m.ID}）###{m.ID}");
 
                         if (ImGui.IsItemActive() && !ImGui.IsItemHovered() && reorderMode)
                         {
@@ -204,7 +204,7 @@ namespace Artisan.UI
                     _keyboardFocus = false;
                 }
 
-                if (ImGui.InputText("Macro Name##macroName", ref _newMacroName, 64, ImGuiInputTextFlags.EnterReturnsTrue) && _newMacroName.Any())
+                if (ImGui.InputText("巨集名稱##macroName", ref _newMacroName, 64, ImGuiInputTextFlags.EnterReturnsTrue) && _newMacroName.Any())
                 {
                     switch (use)
                     {
