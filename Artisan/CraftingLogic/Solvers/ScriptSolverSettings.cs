@@ -62,7 +62,7 @@ public class ScriptSolverSettings
 
     public bool Draw()
     {
-        ImGui.TextWrapped($"This is a very advanced feature, aimed at users wishing to create their own dynamic solvers using C#. Please visit the github source code and view the Demoscripts folder for an example. No support will be given as to learning C# to do this.");
+        ImGui.TextWrapped("這是供進階使用者以 C# 建立動態求解器的功能。範例請參閱 GitHub 原始碼中的 DemoScripts 資料夾；本專案不提供 C# 教學支援。");
         ImGui.Separator();
         Script? toDel = null;
         foreach (var s in Scripts)
@@ -74,26 +74,26 @@ public class ScriptSolverSettings
             using (ImRaii.Disabled(state == CompilationState.InProgress))
             {
                 // TODO: show icon depending on state...
-                if (ImGui.Button($"Recompile: {state}", new(100, 0)))
+                if (ImGui.Button($"重新編譯：{state}", new(100, 0)))
                     _compiler.Recompile(s);
                 if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
                 {
                     ImGui.BeginTooltip();
-                    ImGui.TextUnformatted($"Compilation output:\n{s.CompilationOutput()}");
+                    ImGui.TextUnformatted($"編譯輸出：\n{s.CompilationOutput()}");
                     ImGui.EndTooltip();
                 }
             }
 
             ImGui.SameLine();
-            if (ImGui.Button("Delete"))
+            if (ImGui.Button("刪除"))
                 toDel = s;
             ImGui.SameLine();
             ImGui.TextUnformatted($"[{s.ID}] {s.SourcePath}");
         }
 
-        ImGui.InputText("New script path", ref _newPath, 256);
+        ImGui.InputText("新指令碼路徑", ref _newPath, 256);
         ImGui.SameLine();
-        if (ImGui.Button("Add") && _newPath.Length > 0 && !Scripts.Any(s => s.SourcePath == _newPath))
+        if (ImGui.Button("新增") && _newPath.Length > 0 && !Scripts.Any(s => s.SourcePath == _newPath))
         {
             AddNewScript(new(_newPath));
             _newPath = "";
@@ -102,7 +102,7 @@ public class ScriptSolverSettings
 
         if (toDel != null)
         {
-            toDel.UpdateCompilation(CompilationState.Deleted, "Deletion in progress", null);
+            toDel.UpdateCompilation(CompilationState.Deleted, "正在刪除", null);
             Scripts.Remove(toDel);
             return true;
         }

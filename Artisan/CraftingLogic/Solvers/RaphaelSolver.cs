@@ -334,7 +334,7 @@ namespace Artisan.CraftingLogic.Solvers
                     {
                         if (liveStats)
                         {
-                            ImGuiEx.TextCentered($"Raphael Solution Has Been Generated. (Click to Switch)");
+                            ImGuiEx.TextCentered("Raphael 解法已產生。（點擊切換）");
                             if (ImGui.IsItemClicked())
                             {
                                 config.SolverType = opt?.Def.GetType().FullName!;
@@ -344,41 +344,41 @@ namespace Artisan.CraftingLogic.Solvers
                         }
                         else
                         {
-                            ImGuiEx.TextCentered($"Raphael Solution Has Been Generated.");
+                            ImGuiEx.TextCentered("Raphael 解法已產生。");
                         }
                     }
                     else
                     {
-                        ImGuiEx.TextCentered($"Solution Key: {key}");
+                        ImGuiEx.TextCentered($"解法索引鍵：{key}");
                         var playerIsJob = Player.JobId == craft.Recipe.CraftType.RowId + 8;
                         var parts = KeyParts(key);
                         if (!playerIsJob)
-                            ImGuiEx.TextCentered(ImGuiColors.DalamudOrange, $"Not currently job.");
+                            ImGuiEx.TextCentered(ImGuiColors.DalamudOrange, "目前不是對應製作職業。");
                         else
                         {
                             if (curStats.Craftsmanship == craft.StatCraftsmanship)
-                                ImGuiEx.TextCentered(ImGuiColors.HealerGreen, $"Craftsmanship meets solution requirement: {parts.Crafts}.");
+                                ImGuiEx.TextCentered(ImGuiColors.HealerGreen, $"作業精度符合解法需求：{parts.Crafts}。");
                             else
                             {
-                                ImGuiEx.TextCentered(ImGuiColors.DPSRed, $"There is a craftsmanship difference between the solution ({craft.StatCraftsmanship}) and current ({curStats.Craftsmanship}).\nRaphael won't be used until this is resolved.");
+                                ImGuiEx.TextCentered(ImGuiColors.DPSRed, $"解法所需作業精度（{craft.StatCraftsmanship}）與目前數值（{curStats.Craftsmanship}）不同。\n解決此差異前不會使用 Raphael。");
                                 var foodIsCrafts = ConsumableChecker.GetItemConsumableProperties(LuminaSheets.ItemSheet[config.RequiredFood], false)?.Params.Any(x => x.BaseParam.RowId is 70);
                                 if (foodIsCrafts == true)
-                                    ImGuiEx.TextCentered(ImGuiColors.DalamudOrange, $"(Set food is craftsmanship food, this issue will likely be resolved once the buff is applied)");
+                                    ImGuiEx.TextCentered(ImGuiColors.DalamudOrange, "（設定的食物會提高作業精度，套用增益後可能即可解決此問題）");
 
                                 var potIsCrafts = ConsumableChecker.GetItemConsumableProperties(LuminaSheets.ItemSheet[config.RequiredPotion], false)?.Params.Any(x => x.BaseParam.RowId is 70);
                                 if (potIsCrafts == true)
-                                    ImGuiEx.TextCentered(ImGuiColors.DalamudOrange, $"(Set potion is craftsmanship potion, this issue will likely be resolved once the buff is applied)");
+                                    ImGuiEx.TextCentered(ImGuiColors.DalamudOrange, "（設定的藥品會提高作業精度，套用增益後可能即可解決此問題）");
 
                                 if ((foodIsCrafts == null || foodIsCrafts == false) && (potIsCrafts == null || potIsCrafts == false))
-                                    ImGuiEx.TextCentered(ImGuiColors.DalamudOrange, $"(You currently have a Well Fed/Medicated buff granting you craftsmanship\n that is not set as your food/potion, removing the buff(s) may resolve this)");
+                                    ImGuiEx.TextCentered(ImGuiColors.DalamudOrange, "（目前有未設為指定食物／藥品、但會提高作業精度的進食／藥物增益；移除增益後可能即可解決）");
 
                                 var diffPos = Math.Abs(craft.StatCraftsmanship - curStats.Craftsmanship);
                                 var diffAct = (craft.StatCraftsmanship - curStats.Craftsmanship);
                                 if (diffPos % 5 == 0)
                                     if (diffAct > 0)
-                                        ImGuiEx.TextCentered(ImGuiColors.DalamudOrange, $"(This solution may have been generated with a Free Company Craftsmanship buff which you no longer have)");
+                                        ImGuiEx.TextCentered(ImGuiColors.DalamudOrange, "（產生此解法時可能有部隊作業精度增益，但目前已失效）");
                                     else
-                                        ImGuiEx.TextCentered(ImGuiColors.DalamudOrange, $"(You may have a Free Company Craftsmanship buff that was not active when this solution was generated)");
+                                        ImGuiEx.TextCentered(ImGuiColors.DalamudOrange, "（目前可能有產生此解法時尚未生效的部隊作業精度增益）");
                             }
                         }
 
@@ -386,7 +386,7 @@ namespace Artisan.CraftingLogic.Solvers
                 }
                 else
                 {
-                    ImGuiEx.TextCentered(ImGuiColors.DalamudRed, "No Raphael Solution Generated.");
+                    ImGuiEx.TextCentered(ImGuiColors.DalamudRed, "尚未產生 Raphael 解法。");
                     if (P.Config.RaphaelSolverConfig.AutoGenerate && CraftingProcessor.GetAvailableSolversForRecipe(craft, true).Any() && (!craft.CraftExpert || (craft.CraftExpert && P.Config.RaphaelSolverConfig.GenerateOnExperts)))
                     {
                         if (liveStats && Player.JobId == craft.Recipe.CraftType.RowId + 8)
@@ -395,7 +395,7 @@ namespace Artisan.CraftingLogic.Solvers
                         }
                         else
                         {
-                            ImGuiEx.TextCentered(ImGuiColors.DalamudOrange, $"Raphael solution will auto-generate when current job is {Svc.Data.GetExcelSheet<ClassJob>().GetRow(craft.Recipe.CraftType.RowId + 8).Abbreviation}.");
+                            ImGuiEx.TextCentered(ImGuiColors.DalamudOrange, $"切換為 {Svc.Data.GetExcelSheet<ClassJob>().GetRow(craft.Recipe.CraftType.RowId + 8).Abbreviation} 後將自動產生 Raphael 解法。");
                         }
                     }
                 }
@@ -409,13 +409,13 @@ namespace Artisan.CraftingLogic.Solvers
                     ImGui.BeginDisabled();
 
                 if (P.Config.RaphaelSolverConfig.AllowEnsureReliability)
-                    raphChanges |= ImGui.Checkbox($"Ensure reliability##{key}Reliability", ref TempConfigs[key].EnsureReliability);
+                    raphChanges |= ImGui.Checkbox($"確保成功率##{key}Reliability", ref TempConfigs[key].EnsureReliability);
                 if (P.Config.RaphaelSolverConfig.AllowBackloadProgress)
-                    raphChanges |= ImGui.Checkbox($"Backload progress##{key}Progress", ref TempConfigs[key].BackloadProgress);
+                    raphChanges |= ImGui.Checkbox($"將進展安排在後段##{key}Progress", ref TempConfigs[key].BackloadProgress);
                 if (P.Config.RaphaelSolverConfig.ShowSpecialistSettings && craft.Specialist)
-                    raphChanges |= ImGui.Checkbox($"Allow heart and soul usage##{key}HS", ref TempConfigs[key].HeartAndSoul);
+                    raphChanges |= ImGui.Checkbox($"允許使用專心致志##{key}HS", ref TempConfigs[key].HeartAndSoul);
                 if (P.Config.RaphaelSolverConfig.ShowSpecialistSettings && craft.Specialist)
-                    raphChanges |= ImGui.Checkbox($"Allow quick innovation usage##{key}QI", ref TempConfigs[key].QuickInno);
+                    raphChanges |= ImGui.Checkbox($"允許使用快速改革##{key}QI", ref TempConfigs[key].QuickInno);
 
                 changed |= raphChanges;
 
@@ -424,14 +424,14 @@ namespace Artisan.CraftingLogic.Solvers
 
                 if (!inProgress)
                 {
-                    if (ImGui.Button("Build Raphael Solution", new Vector2(ImGui.GetContentRegionAvail().X, 25f.Scale())))
+                    if (ImGui.Button("產生 Raphael 解法", new Vector2(ImGui.GetContentRegionAvail().X, 25f.Scale())))
                     {
                         Build(craft, TempConfigs[key]);
                     }
                 }
                 else
                 {
-                    if (ImGui.Button("Cancel Raphael Generation", new Vector2(ImGui.GetContentRegionAvail().X, 25f.Scale())))
+                    if (ImGui.Button("取消產生 Raphael 解法", new Vector2(ImGui.GetContentRegionAvail().X, 25f.Scale())))
                     {
                         Tasks.TryRemove(key, out var task);
                         task.Item1.Cancel();
@@ -441,18 +441,18 @@ namespace Artisan.CraftingLogic.Solvers
                 if (TempConfigs[key].EnsureReliability && ImGui.IsItemHovered())
                 {
                     ImGui.BeginTooltip();
-                    ImGui.Text("Ensuring quality is enabled, no support shall be provided when its enabled\nDue to problems that can be caused.");
+                    ImGui.Text("已啟用確保品質。此選項可能造成問題，啟用時不提供相關支援。");
                     ImGui.EndTooltip();
                 }
 
                 if (TempConfigs[key].HeartAndSoul || TempConfigs[key].QuickInno)
                 {
-                    ImGui.Text("Specialist actions are enabled, this can slow down the solver a lot.");
+                    ImGui.Text("已啟用專家技能，可能大幅降低求解速度。");
                 }
 
                 if (inProgress)
                 {
-                    ImGuiEx.TextCentered("Generating...");
+                    ImGuiEx.TextCentered("正在產生……");
                 }
             }
 
@@ -479,44 +479,44 @@ namespace Artisan.CraftingLogic.Solvers
             bool changed = false;
 
             ImGui.Indent();
-            ImGui.TextWrapped($"Raphael settings can change the performance and system memory consumption. If you have low amounts of RAM try not to change settings, recommended minimum amount of RAM free is 2GB");
+            ImGui.TextWrapped("Raphael 設定會影響效能與記憶體用量。若可用記憶體不多，建議不要變更設定；建議至少保留 2 GB 可用記憶體。");
 
-            if (ImGui.SliderInt("Maximum Threads", ref MaximumThreads, 0, Environment.ProcessorCount))
+            if (ImGui.SliderInt("最大執行緒數", ref MaximumThreads, 0, Environment.ProcessorCount))
             {
                 P.Config.Save();
             }
-            ImGuiEx.TextWrapped("By default uses all it can, but on lower end machines you might need to use less cpu at the cost of speed. (0 = everything)");
+            ImGuiEx.TextWrapped("預設會使用所有可用資源；效能較低的電腦可減少 CPU 使用量，但求解速度也會降低。（0＝全部）");
 
-            changed |= ImGui.Checkbox("Ensure 100% reliability in macro generation", ref AllowEnsureReliability);
+            changed |= ImGui.Checkbox("產生巨集時確保 100% 成功率", ref AllowEnsureReliability);
             ImGui.PushTextWrapPos(0);
-            ImGui.TextColored(new System.Numerics.Vector4(255, 0, 0, 1), "Ensuring reliability may not always work and is very CPU and RAM intensive, suggested RAM at least 16GB+ spare. NO SUPPORT SHALL BE GIVEN IF YOU HAVE THIS ON");
+            ImGui.TextColored(new System.Numerics.Vector4(255, 0, 0, 1), "確保成功率未必始終有效，且會大量使用 CPU 與記憶體；建議至少保留 16 GB 可用記憶體。啟用此功能時不提供相關支援。");
             ImGui.PopTextWrapPos();
-            changed |= ImGui.Checkbox("Allow backloading of progress in macro generation", ref AllowBackloadProgress);
-            changed |= ImGui.Checkbox("Show specialist options when available", ref ShowSpecialistSettings);
-            changed |= ImGui.Checkbox($"Automatically generate a solution if a valid one hasn't been created.", ref AutoGenerate);
+            changed |= ImGui.Checkbox("產生巨集時允許將進展安排在後段", ref AllowBackloadProgress);
+            changed |= ImGui.Checkbox("可用時顯示專家選項", ref ShowSpecialistSettings);
+            changed |= ImGui.Checkbox("沒有有效解法時自動產生", ref AutoGenerate);
 
             if (AutoGenerate)
             {
                 ImGui.Indent();
-                changed |= ImGui.Checkbox($"Generate on Expert Recipes", ref GenerateOnExperts);
+                changed |= ImGui.Checkbox("為高難度配方產生解法", ref GenerateOnExperts);
                 ImGui.Unindent();
             }
 
-            changed |= ImGui.Checkbox($"Automatically switch to the Raphael Solver once a solution has been created.", ref AutoSwitch);
+            changed |= ImGui.Checkbox("解法產生後自動切換至 Raphael 求解器", ref AutoSwitch);
 
             if (AutoSwitch)
             {
                 ImGui.Indent();
-                changed |= ImGui.Checkbox($"Apply to all valid crafts", ref AutoSwitchOnAll);
-                changed |= ImGui.Checkbox("Apply over crafts that already have a macro assigned to them", ref AutoSwitchOverManual);
+                changed |= ImGui.Checkbox("套用至所有有效製作", ref AutoSwitchOnAll);
+                changed |= ImGui.Checkbox("也套用至已指派巨集的製作", ref AutoSwitchOverManual);
                 ImGui.Unindent();
             }
 
-            changed |= ImGui.SliderInt("Timeout solution generation", ref TimeOutMins, 1, 15);
+            changed |= ImGui.SliderInt("產生解法逾時（分鐘）", ref TimeOutMins, 1, 15);
 
-            ImGuiComponents.HelpMarker($"If a solution takes longer than this many minutes to generate, it will cancel the generation task.");
+            ImGuiComponents.HelpMarker("若產生解法超過此分鐘數，將取消求解工作。");
 
-            if (ImGui.Button($"Clear raphael macro cache (Currently {P.Config.RaphaelSolverCacheV3.Count} stored)"))
+            if (ImGui.Button($"清除 Raphael 巨集快取（目前儲存 {P.Config.RaphaelSolverCacheV3.Count} 筆）"))
             {
                 P.Config.RaphaelSolverCacheV3.Clear();
                 changed |= true;

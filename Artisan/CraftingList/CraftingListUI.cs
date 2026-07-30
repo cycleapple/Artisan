@@ -256,7 +256,7 @@ namespace Artisan.CraftingLists
                     keyboardFocus = false;
                 }
 
-                if (ImGui.InputText("List Name###listName", ref newListName, 100, ImGuiInputTextFlags.EnterReturnsTrue) && newListName.Any())
+                if (ImGui.InputText("清單名稱###listName", ref newListName, 100, ImGuiInputTextFlags.EnterReturnsTrue) && newListName.Any())
                 {
                     NewCraftingList newList = new();
                     newList.Name = newListName;
