@@ -12,23 +12,30 @@ internal static class CraftingListHelpers
 {    
     internal static Dictionary<uint, bool> SelectedRecipesCraftable = new();
 
-    public static void AddRecipeIngredientsToList(Recipe? recipe, ref Dictionary<uint, int> ingredientList, bool addSublist = true, NewCraftingList? selectedList = null)
+    public static void AddRecipeIngredientsToList(
+        Recipe? recipe,
+        ref Dictionary<uint, int> ingredientList,
+        bool addSublist = true,
+        NewCraftingList? selectedList = null,
+        int? selectedQuantity = null)
     {
         try
         {
             if (recipe == null) return;
 
-            if (selectedList != null)
+            if (selectedList != null || selectedQuantity.HasValue)
             {
+                var quantity = selectedQuantity ??
+                               selectedList!.Recipes.First(x => x.ID == recipe.Value.RowId).Quantity;
                 foreach (var ing in recipe.Value.Ingredients().Where(x => x.Amount > 0 && x.Item.RowId != 0))
                 {
                     if (ingredientList.ContainsKey(ing.Item.RowId))
                     {
-                        ingredientList[ing.Item.RowId] += ing.Amount * selectedList.Recipes.First(x => x.ID == recipe.Value.RowId).Quantity;
+                        ingredientList[ing.Item.RowId] += ing.Amount * quantity;
                     }
                     else
                     {
-                        ingredientList.TryAdd(ing.Item.RowId, ing.Amount * selectedList.Recipes.First(x => x.ID == recipe.Value.RowId).Quantity);
+                        ingredientList.TryAdd(ing.Item.RowId, ing.Amount * quantity);
                     }
 
                     var name = LuminaSheets.ItemSheet[ing.Item.RowId].Name.ToString();

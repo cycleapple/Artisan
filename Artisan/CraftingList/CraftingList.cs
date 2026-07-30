@@ -117,16 +117,15 @@ namespace Artisan.CraftingLists
         public static Dictionary<uint, int> ListMaterials(this NewCraftingList list)
         {
             var output = new Dictionary<uint, int>();
-            foreach (var item in list.Recipes)
+            // The list editor can change Recipes while its background ingredient
+            // calculation is running. Work from a stable snapshot and do not mutate
+            // configuration objects from that background task.
+            foreach (var item in list.Recipes.ToArray())
             {
-                if (item.ListItemOptions == null)
-                {
-                    item.ListItemOptions = new ListItemOptions();
-                    P.Config.Save();
-                }
-                if (item.ListItemOptions.Skipping || item.Quantity == 0) continue;
+                if (item.ListItemOptions?.Skipping == true || item.Quantity == 0) continue;
                 Recipe r = LuminaSheets.RecipeSheet[item.ID];
-                CraftingListHelpers.AddRecipeIngredientsToList(r, ref output, false, list);
+                CraftingListHelpers.AddRecipeIngredientsToList(
+                    r, ref output, false, selectedQuantity: item.Quantity);
             }
 
             return output;
