@@ -403,11 +403,11 @@ namespace Artisan.Autocraft
                                         {
                                             if (!IPCOverride)
                                             {
-                                                DuoLog.Error($"Unable to start crafting. Disabling Endurance. {(!P.Config.MaxQuantityMode ? "Please enable Max Quantity mode or set your ingredients before starting." : "")}");
+                                                DuoLog.Error($"無法開始製作，已停用耐久製作模式。{(!P.Config.MaxQuantityMode ? "請啟用最大數量模式，或在開始前設定素材。" : "")}");
                                             }
                                             else
                                             {
-                                                DuoLog.Error($"Something has gone wrong whilst another plugin tried to control Artisan. Disabling Endurance.");
+                                                DuoLog.Error("其他插件嘗試控制 Artisan 時發生錯誤，已停用耐久製作模式。");
                                             }
                                             ToggleEndurance(false);
                                         }
@@ -451,8 +451,8 @@ namespace Artisan.Autocraft
                 Svc.Log.Warning($"Error Warnings [{Errors.Count(x => x > Environment.TickCount64 - 10 * 1000)}]: {message}");
                 if (Errors.Count() >= 5 && Errors.All(x => x > Environment.TickCount64 - 10 * 1000))
                 {
-                    Svc.Toasts.ShowError($"Current crafting mode has been {(Enable ? "disabled" : "paused")} due to too many errors in succession.");
-                    DuoLog.Error($"Current crafting mode has been {(Enable ? "disabled" : "paused")} due to too many errors in succession.");
+                    Svc.Toasts.ShowError($"由於連續發生過多錯誤，目前的製作模式已{(Enable ? "停用" : "暫停")}。");
+                    DuoLog.Error($"由於連續發生過多錯誤，目前的製作模式已{(Enable ? "停用" : "暫停")}。");
                     if (enable)
                         ToggleEndurance(false);
                     if (CraftingListUI.Processing)

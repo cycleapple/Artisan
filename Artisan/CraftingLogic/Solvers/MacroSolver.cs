@@ -19,7 +19,7 @@ public class MacroSolverDefinition : ISolverDefinition
             if (m.Steps.Count == 0) continue;
 
             var statsOk = m.Options.MinCraftsmanship <= craft.StatCraftsmanship && m.Options.MinControl <= craft.StatControl && m.Options.MinCP <= craft.StatCP;
-            yield return new(this, m.ID, 0, $"Macro: {m.Name}", statsOk ? "" : "You do not meet the minimum stats for this macro");
+            yield return new(this, m.ID, 0, $"巨集：{m.Name}", statsOk ? "" : "目前能力值未達此巨集的最低要求。");
         }
     }
 
