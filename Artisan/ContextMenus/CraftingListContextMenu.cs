@@ -328,13 +328,12 @@ internal static class CraftingListContextMenu
         }
 
         CraftingListHelpers.TidyUpList(CraftingListUI.selectedList);
-        foreach (var w in P.ws.Windows)
+        foreach (var editor in P.ws.Windows
+                     .OfType<ListEditor>()
+                     .Where(x => x.SelectedList.ID == CraftingListUI.selectedList.ID))
         {
-            if (w.WindowName == $"List Editor###{CraftingListUI.selectedList.ID}")
-            {
-                (w as ListEditor).RecipeSelector.Items = CraftingListUI.selectedList.Recipes.ToList();
-                (w as ListEditor).RefreshTable(null, true);
-            }
+            editor.RecipeSelector.Items = CraftingListUI.selectedList.Recipes.ToList();
+            editor.RefreshTable(null, true);
         }
 
         P.Config.Save();
