@@ -131,6 +131,11 @@ namespace Artisan.RawInformation
             }
         }
 
+        public void InvalidateRemaining()
+        {
+            RemainingCheck = DateTime.MinValue;
+        }
+
         public int RetainerCount
         {
             get

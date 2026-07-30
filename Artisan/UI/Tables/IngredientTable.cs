@@ -74,6 +74,9 @@ namespace Artisan.UI.Tables
 
         private bool CraftFiltered = false;
         private bool? isOnList = null;
+        private DateTime _nextDynamicRefresh = DateTime.MinValue;
+        private DateTime _nextRetainerRefresh = DateTime.MinValue;
+        private readonly Dictionary<uint, (int Inventory, int Retainers)> _lastOwnedCounts = new();
 
         public IngredientTable(List<Ingredient> ingredientList)
             : base("IngredientTable", ingredientList)
@@ -108,15 +111,78 @@ namespace Artisan.UI.Tables
             {
                 item.OnRemainingChange += SetFilterDirty;
             }
+
+            RefreshDynamicState(true);
         }
 
         private void SetFilterDirty(object? sender, bool e)
         {
+            this.FilterDirty = true;
+        }
+
+        public void RefreshDynamicState(bool force = false)
+        {
+            var now = DateTime.UtcNow;
+            if (!force && now < _nextDynamicRefresh)
+                return;
+
+            _nextDynamicRefresh = now.AddMilliseconds(500);
+            var refreshRetainers = force || now >= _nextRetainerRefresh;
+            if (refreshRetainers)
+                _nextRetainerRefresh = now.AddSeconds(5);
+
+            var ownedCountsChanged = force;
             foreach (var item in Items)
             {
-                item.AmountUsedForSubcrafts = item.GetSubCraftCount();
+                var hadPrevious = _lastOwnedCounts.TryGetValue(item.Data.RowId, out var previous);
+                var counts = (
+                    item.Inventory,
+                    refreshRetainers ? item.RetainerCount : previous.Retainers);
+                if (!hadPrevious || previous != counts)
+                {
+                    _lastOwnedCounts[item.Data.RowId] = counts;
+                    ownedCountsChanged = true;
+                }
             }
-            this.FilterDirty = true;
+
+            if (!ownedCountsChanged)
+                return;
+
+            // Subcraft deductions depend on the deductions of items further down
+            // the recipe chain. Refresh those first instead of relying on table
+            // display order, which can change through sorting and filtering.
+            var refreshed = new HashSet<uint>();
+            var visiting = new HashSet<uint>();
+            foreach (var item in Items)
+                RefreshSubcraftCounts(item, refreshed, visiting);
+
+            foreach (var item in Items)
+            {
+                item.InvalidateRemaining();
+                _ = item.Remaining;
+            }
+
+            FilterDirty = true;
+        }
+
+        private void RefreshSubcraftCounts(
+            Ingredient item,
+            HashSet<uint> refreshed,
+            HashSet<uint> visiting)
+        {
+            if (refreshed.Contains(item.Data.RowId) || !visiting.Add(item.Data.RowId))
+                return;
+
+            foreach (var recipeId in item.UsedInCrafts)
+            {
+                var producedItemId = LuminaSheets.RecipeSheet[recipeId].ItemResult.RowId;
+                if (Items.TryGetFirst(x => x.Data.RowId == producedItemId, out var producedItem))
+                    RefreshSubcraftCounts(producedItem, refreshed, visiting);
+            }
+
+            item.AmountUsedForSubcrafts = item.GetSubCraftCount();
+            visiting.Remove(item.Data.RowId);
+            refreshed.Add(item.Data.RowId);
         }
 
         public void Dispose()

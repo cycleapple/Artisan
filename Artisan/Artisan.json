@@ -12,5 +12,5 @@
     "RepoUrl": "https://github.com/cycleapple/Artisan/tree/api13-tw",
     "DalamudApiLevel": 13,
     "DownloadLinkTesting": "https://love.puni.sh/plugins/Artisan/Testing/latest.zip",
-    "ChangeLog": "完成主要設定、模擬器、任務助手、Raphael 快取與製作浮動視窗的繁體中文化。"
+    "ChangeLog": "修正製作清單素材統計未隨物品欄更新、半成品抵扣順序錯誤，以及快速編輯時舊表格覆蓋新資料的問題。"
 }

@@ -42,6 +42,7 @@ internal class ListEditor : Window, IDisposable
     private Task? RegenerateTask = null;
     private CancellationTokenSource source = new CancellationTokenSource();
     private CancellationToken token;
+    private int tableGeneration;
 
     public bool Processing = false;
 
@@ -113,39 +114,58 @@ internal class ListEditor : Window, IDisposable
         if (P.Config.DefaultColourValidation) ColourValidation = true;
     }
 
-    public async Task GenerateTableAsync(CancellationTokenSource source)
+    public async Task GenerateTableAsync(CancellationTokenSource generationSource, int generation)
     {
-        Table?.Dispose();
-        var list = await IngredientHelper.GenerateList(SelectedList, source);
-        if (list is null)
+        var helper = new IngredientHelpers();
+        if (generation == Volatile.Read(ref tableGeneration))
+            IngredientHelper = helper;
+
+        var list = await helper.GenerateList(SelectedList, generationSource);
+        if (list is null ||
+            generationSource.IsCancellationRequested ||
+            generation != Volatile.Read(ref tableGeneration))
         {
             Svc.Log.Debug($"Table list empty, aborting.");
             return;
         }
 
-        Table = new IngredientTable(list);
+        var table = new IngredientTable(list);
+        if (generationSource.IsCancellationRequested ||
+            generation != Volatile.Read(ref tableGeneration))
+        {
+            table.Dispose();
+            return;
+        }
+
+        Table = table;
     }
 
     public void RefreshTable(object? sender, bool e)
     {
-        token = source.Token;
+        var oldSource = source;
+        var oldTask = RegenerateTask;
+        source = new CancellationTokenSource();
+        var generationSource = source;
+        token = generationSource.Token;
+        var generation = Interlocked.Increment(ref tableGeneration);
+
+        oldSource.Cancel();
+        if (oldTask?.IsCompleted != false)
+            oldSource.Dispose();
+        else
+            _ = oldTask.ContinueWith(
+                _ => oldSource.Dispose(),
+                CancellationToken.None,
+                TaskContinuationOptions.ExecuteSynchronously,
+                TaskScheduler.Default);
+
+        Table?.Dispose();
         Table = null;
         P.UniversalsisClient.PlayerWorld = Svc.ClientState.LocalPlayer?.CurrentWorld.RowId;
-        if (RegenerateTask == null || RegenerateTask.IsCompleted)
-        {
-            Svc.Log.Debug($"Starting regeneration");
-            RegenerateTask = Task.Run(() => GenerateTableAsync(source), token);
-        }
-        else
-        {
-            Svc.Log.Debug($"Stopping and restarting regeneration");
-            if (source != null)
-                source.Cancel();
-
-            source = new();
-            token = source.Token;
-            RegenerateTask = Task.Run(() => GenerateTableAsync(source), token);
-        }
+        Svc.Log.Debug($"Starting ingredient table regeneration {generation}");
+        RegenerateTask = Task.Run(
+            () => GenerateTableAsync(generationSource, generation),
+            token);
     }
 
     public override void PreDraw()
@@ -867,7 +887,7 @@ internal class ListEditor : Window, IDisposable
     }
     private void DrawTotalIngredientsTable()
     {
-        if (Table == null && RegenerateTask.IsCompleted)
+        if (Table == null && RegenerateTask?.IsCompleted == true)
         {
             if (ImGui.Button($"建立表格時發生問題。要再試一次嗎？"))
             {
@@ -888,6 +908,7 @@ internal class ListEditor : Window, IDisposable
         Table._inventoryColumn.HQOnlyCrafts = HQSubcraftsOnly;
         Table._retainerColumn.HQOnlyCrafts = HQSubcraftsOnly;
         Table._nameColumn.ShowHQOnly = HQSubcraftsOnly;
+        Table.RefreshDynamicState();
         Table.Draw(ImGui.GetTextLineHeightWithSpacing());
         ImGui.EndChild();
 
