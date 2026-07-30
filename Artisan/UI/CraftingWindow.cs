@@ -211,7 +211,19 @@ namespace Artisan.UI
                 if (!P.Config.ReplicateMacroDelay)
                     P.CTM.DelayNext(P.Config.AutoDelay);
                 P.CTM.Enqueue(() => Crafting.CurState == Crafting.State.InProgress, 3000, true, "WaitForStateToUseAction");
-                P.CTM.Enqueue(() => ActionManagerEx.UseSkill(recommendation.Action));
+                var recommendationStep = step.Index;
+                P.CTM.Enqueue(() =>
+                {
+                    // A manual action or another automation source may advance
+                    // the craft before this queued recommendation can execute.
+                    // Treat that recommendation as stale instead of retrying an
+                    // action for ten seconds and blocking every later step.
+                    if (Crafting.CurState != Crafting.State.InProgress
+                        || Crafting.CurStep?.Index != recommendationStep)
+                        return true;
+
+                    return ActionManagerEx.UseSkill(recommendation.Action);
+                });
                 if (P.Config.ReplicateMacroDelay)
                     P.CTM.DelayNext(Calculations.ActionIsLengthyAnimation(recommendation.Action) ? 3000 : 2000);
             }

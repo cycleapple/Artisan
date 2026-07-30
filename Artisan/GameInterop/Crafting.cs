@@ -265,7 +265,8 @@ public static unsafe class Crafting
 
         if (CurCraft != null)
         {
-            CraftFinished?.Invoke(CurRecipe!.Value, CurCraft, CurStep!, true);
+            if (CurRecipe != null && CurStep != null)
+                CraftFinished?.Invoke(CurRecipe.Value, CurCraft, CurStep, true);
             _predictedNextStep = null;
             _predictionDeadline = default;
             CurRecipe = null;
@@ -603,7 +604,9 @@ public static unsafe class Crafting
         ret.TrainedPerfectionAvailable = ActionManagerEx.CanUseSkill(Skills.TrainedPerfection);
         ret.QuickInnoAvailable = ActionManagerEx.CanUseSkill(Skills.QuickInnovation);
         ret.QuickInnoLeft = !craft.Specialist ? 0 : ActionManagerEx.CanUseSkill(Skills.QuickInnovation) ? 1 : predictedStep?.QuickInnoLeft ?? 0;
-        ret.ExpedienceLeft = GetStatus(Buffs.Expedience)?.Param ?? 0;
+        // Expedience is a one-use proc. Its status Param can be zero on the
+        // Taiwan client, so presence of the status is the reliable signal.
+        ret.ExpedienceLeft = GetStatus(Buffs.Expedience) != null ? 1 : 0;
         ret.PrevActionFailed = predictedStep?.PrevActionFailed ?? false;
         ret.PrevComboAction = predictedStep?.PrevComboAction ?? Skills.None;
         ret.MaterialMiracleCharges = MaterialMiracleCharges();
