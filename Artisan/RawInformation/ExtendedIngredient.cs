@@ -119,7 +119,14 @@ namespace Artisan.RawInformation
             {
                 if (DateTime.Now > RemainingCheck)
                 {
-                    var current = Math.Max(0, Required - Inventory - RetainerCount - (CanBeCrafted ? TotalCraftable : 0) - (OriginList.SkipIfEnough && OriginList.SkipLiteral ? 0 : AmountUsedForSubcrafts));
+                    // "Remaining" is the reliable physical shortfall shown to the user
+                    // and used by exports, filters and market-board quantity lookups.
+                    // Do not subtract TotalCraftable here: NumberCraftable evaluates each
+                    // recipe independently and can claim the same shared materials more
+                    // than once across a multi-item list. Existing downstream products
+                    // are also not inventory of this ingredient and are therefore kept
+                    // out of this physical count.
+                    var current = Math.Max(0, Required - Inventory - RetainerCount);
                     if (remaining != current)
                     {
                         remaining = current;
@@ -129,11 +136,6 @@ namespace Artisan.RawInformation
                 }
                 return remaining;
             }
-        }
-
-        public void InvalidateRemaining()
-        {
-            RemainingCheck = DateTime.MinValue;
         }
 
         public int RetainerCount

@@ -908,7 +908,6 @@ internal class ListEditor : Window, IDisposable
         Table._inventoryColumn.HQOnlyCrafts = HQSubcraftsOnly;
         Table._retainerColumn.HQOnlyCrafts = HQSubcraftsOnly;
         Table._nameColumn.ShowHQOnly = HQSubcraftsOnly;
-        Table.RefreshDynamicState();
         Table.Draw(ImGui.GetTextLineHeightWithSpacing());
         ImGui.EndChild();
 
@@ -984,7 +983,7 @@ internal class ListEditor : Window, IDisposable
             ImGui.PopStyleColor();
             ImGui.SameLine();
             ImGui.SetCursorPosX(ImGui.GetCursorPosX() - 7);
-            ImGui.Text($"－物品欄已有全部所需素材{(SelectedList.SkipIfEnough && SelectedList.SkipLiteral ? "" : "，或已持有使用此素材製成的成品，因此無需準備")}");
+            ImGui.Text($"－物品欄已有全部所需素材");
 
             if (RetainerInfo.ATools)
             {
@@ -998,14 +997,6 @@ internal class ListEditor : Window, IDisposable
                 ImGui.Text($"－雇員與物品欄合計已有全部所需素材");
             }
 
-            ImGui.PushStyleColor(ImGuiCol.Button, ImGuiColors.ParsedBlue);
-            ImGui.BeginDisabled(true);
-            ImGui.Button("", new Vector2(23, 23));
-            ImGui.EndDisabled();
-            ImGui.PopStyleColor();
-            ImGui.SameLine();
-            ImGui.SetCursorPosX(ImGui.GetCursorPosX() - 7);
-            ImGui.Text($"－物品欄與可製作數量合計可滿足全部需求。");
         }
 
 
@@ -1056,7 +1047,7 @@ internal class ListEditor : Window, IDisposable
             ImGuiComponents.HelpMarker("若物品欄中的素材數量少於清單從零開始製作時會產出的數量，便會繼續製作。\n\n" +
                 "[配方產量] × [製作次數] 小於 [物品欄數量] 時略過。\n\n" +
                 "製作清單外項目所需的素材時可使用此選項，例如部隊工房工程。\n\n" +
-                "這也會調整素材表格的尚缺欄位與顏色檢查，不再計入使用該素材製作的其他成品。");
+                "此設定只影響清單執行時是否略過，不會改變素材表中的實際尚缺數量。");
             ImGui.Unindent();
         }
 

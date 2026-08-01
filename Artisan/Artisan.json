@@ -12,5 +12,5 @@
     "RepoUrl": "https://github.com/cycleapple/Artisan/tree/api13-tw",
     "DalamudApiLevel": 13,
     "DownloadLinkTesting": "https://love.puni.sh/plugins/Artisan/Testing/latest.zip",
-    "ChangeLog": "修正從製作筆記右鍵加入目前製作清單後，已開啟的繁中清單編輯器不會即時更新的問題。"
+    "ChangeLog": "修正多種物品共用素材時，個別可製作量重複使用同一批素材而讓尚缺數量錯誤歸零；尚缺改為需求量減物品欄與雇員，個別可製作量改為明確的推估欄位。"
 }

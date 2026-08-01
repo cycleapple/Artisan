@@ -46,7 +46,7 @@ namespace Artisan.UI.Tables
         public readonly RetainerCountColumn _retainerColumn = new() { Label = "雇員###Retainers" };
         public readonly RemaingCountColumn _remainingColumn = new() { Label = "尚缺數量###Remaining Needed" };
         public readonly CraftableColumn _craftableColumn = new() { Label = "來源###Sources" };
-        public readonly CraftableCountColumn _craftableCountColumn = new() { Label = "可製作數量###Number Craftable" };
+        public readonly CraftableCountColumn _craftableCountColumn = new() { Label = "個別推估可製作###Estimated Number Craftable" };
         public readonly CraftItemsColumn _craftItemsColumn = new() { Label = "用於製作###Used to Craft" };
         public readonly ItemCategoryColumn _itemCategoryColumn = new() { Label = "分類###Category" };
         public readonly GatherItemLocationColumn _gatherItemLocationColumn = new() { Label = "採集區域###Gathered Zone" };
@@ -74,9 +74,6 @@ namespace Artisan.UI.Tables
 
         private bool CraftFiltered = false;
         private bool? isOnList = null;
-        private DateTime _nextDynamicRefresh = DateTime.MinValue;
-        private DateTime _nextRetainerRefresh = DateTime.MinValue;
-        private readonly Dictionary<uint, (int Inventory, int Retainers)> _lastOwnedCounts = new();
 
         public IngredientTable(List<Ingredient> ingredientList)
             : base("IngredientTable", ingredientList)
@@ -105,84 +102,15 @@ namespace Artisan.UI.Tables
             Flags |= ImGuiTableFlags.Hideable | ImGuiTableFlags.Reorderable | ImGuiTableFlags.Resizable;
 
             _nameColumn.OnContextMenuRequest += OpenContextMenu;
-            _remainingColumn.SourceList = ListItems;
-
             foreach (var item in Items)
             {
                 item.OnRemainingChange += SetFilterDirty;
             }
-
-            RefreshDynamicState(true);
         }
 
         private void SetFilterDirty(object? sender, bool e)
         {
             this.FilterDirty = true;
-        }
-
-        public void RefreshDynamicState(bool force = false)
-        {
-            var now = DateTime.UtcNow;
-            if (!force && now < _nextDynamicRefresh)
-                return;
-
-            _nextDynamicRefresh = now.AddMilliseconds(500);
-            var refreshRetainers = force || now >= _nextRetainerRefresh;
-            if (refreshRetainers)
-                _nextRetainerRefresh = now.AddSeconds(5);
-
-            var ownedCountsChanged = force;
-            foreach (var item in Items)
-            {
-                var hadPrevious = _lastOwnedCounts.TryGetValue(item.Data.RowId, out var previous);
-                var counts = (
-                    item.Inventory,
-                    refreshRetainers ? item.RetainerCount : previous.Retainers);
-                if (!hadPrevious || previous != counts)
-                {
-                    _lastOwnedCounts[item.Data.RowId] = counts;
-                    ownedCountsChanged = true;
-                }
-            }
-
-            if (!ownedCountsChanged)
-                return;
-
-            // Subcraft deductions depend on the deductions of items further down
-            // the recipe chain. Refresh those first instead of relying on table
-            // display order, which can change through sorting and filtering.
-            var refreshed = new HashSet<uint>();
-            var visiting = new HashSet<uint>();
-            foreach (var item in Items)
-                RefreshSubcraftCounts(item, refreshed, visiting);
-
-            foreach (var item in Items)
-            {
-                item.InvalidateRemaining();
-                _ = item.Remaining;
-            }
-
-            FilterDirty = true;
-        }
-
-        private void RefreshSubcraftCounts(
-            Ingredient item,
-            HashSet<uint> refreshed,
-            HashSet<uint> visiting)
-        {
-            if (refreshed.Contains(item.Data.RowId) || !visiting.Add(item.Data.RowId))
-                return;
-
-            foreach (var recipeId in item.UsedInCrafts)
-            {
-                var producedItemId = LuminaSheets.RecipeSheet[recipeId].ItemResult.RowId;
-                if (Items.TryGetFirst(x => x.Data.RowId == producedItemId, out var producedItem))
-                    RefreshSubcraftCounts(producedItem, refreshed, visiting);
-            }
-
-            item.AmountUsedForSubcrafts = item.GetSubCraftCount();
-            visiting.Remove(item.Data.RowId);
-            refreshed.Add(item.Data.RowId);
         }
 
         public void Dispose()
@@ -217,13 +145,6 @@ namespace Artisan.UI.Tables
                     int invAmount = ShowHQOnly && item.CanBeCrafted ? item.InventoryHQ : item.Inventory;
                     int retainerAmount = ShowHQOnly && item.CanBeCrafted ? item.ReainterCountHQ : item.RetainerCount;
 
-                    if (item.CanBeCrafted && retainerAmount + invAmount + item.TotalCraftable >= item.Required)
-                    {
-                        var color = ImGuiColors.TankBlue;
-                        color.W -= 0.6f;
-                        ImGui.TableSetBgColor(ImGuiTableBgTarget.RowBg1, ImGui.ColorConvertFloat4ToU32(color));
-                    }
-
                     if (retainerAmount + invAmount >= item.Required)
                     {
                         var color = ImGuiColors.DalamudOrange;
@@ -231,7 +152,7 @@ namespace Artisan.UI.Tables
                         ImGui.TableSetBgColor(ImGuiTableBgTarget.RowBg1, ImGui.ColorConvertFloat4ToU32(color));
                     }
 
-                    if (invAmount >= item.Required - (item.OriginList.SkipIfEnough && item.OriginList.SkipLiteral ? 0 : item.GetSubCraftCount()))
+                    if (invAmount >= item.Required)
                     {
                         var color = ImGuiColors.HealerGreen;
                         color.W -= 0.3f;
@@ -652,48 +573,12 @@ namespace Artisan.UI.Tables
             public override int Compare(Ingredient lhs, Ingredient rhs)
                 => lhs.Remaining.CompareTo(rhs.Remaining);
 
-            public List<Ingredient> SourceList = new();
-
             public override void DrawColumn(Ingredient item, int idx)
             {
                 ImGuiUtil.Center($"{item.Remaining}");
 
-                if (!(item.OriginList.SkipIfEnough && item.OriginList.SkipLiteral) && ImGui.IsItemHovered())
-                {
-                    StringBuilder sb = new StringBuilder();
-                    if (item.UsedInMaterialsListCount.Count > 0)
-                    {
-                        foreach (var i in item.UsedInMaterialsListCount.Where(x => x.Value > 0))
-                        {
-                            var owned = RetainerInfo.GetRetainerItemCount(LuminaSheets.RecipeSheet[i.Key].ItemResult.RowId) + CraftingListUI.NumberOfIngredient(LuminaSheets.RecipeSheet[i.Key].ItemResult.RowId);
-                            if (SourceList.TryGetFirst(x => x.CraftedRecipe.RowId == i.Key, out var ingredient))
-                            {
-                                sb.AppendLine($"因已持有{(owned > ingredient.Required ? "至少 " : "")}{Math.Min(ingredient.Required, owned)} 個 {i.Key.NameOfRecipe()}，需求量減少 {i.Value}。");
-                            }
-                        }
-                    }
-
-                    if (item.SubSubMaterials.Count > 0)
-                    {
-                        foreach (var i in item.SubSubMaterials)
-                        {
-                            if (item.UsedInMaterialsListCount.ContainsKey(i.Key))
-                                continue;
-
-                            sb.AppendLine($"{i.Key.NameOfRecipe()} 的需求量減少 {i.Value.Sum(x => x.Item2)}。");
-                            foreach (var m in i.Value)
-                            {
-                                var owned = RetainerInfo.GetRetainerItemCount(LuminaSheets.RecipeSheet[m.Item1].ItemResult.RowId) + CraftingListUI.NumberOfIngredient(LuminaSheets.RecipeSheet[m.Item1].ItemResult.RowId);
-                                if (SourceList.TryGetFirst(x => x.CraftedRecipe.RowId == m.Item1, out var ingredient))
-                                {
-                                    sb.AppendLine($"└ {m.Item1.NameOfRecipe()} 會使用 {i.Key.NameOfRecipe()}；你已持有{(owned > ingredient.Required ? "至少 " : "")}{Math.Min(ingredient.Required, owned)} 個 {m.Item1.NameOfRecipe()}，因此可少準備 {m.Item2} 個 {item.Data.Name}。");
-                                }
-                            }
-                        }
-                    }
-
-                    ImGuiUtil.HoverTooltip(sb.ToString().Trim());
-                }
+                if (ImGui.IsItemHovered())
+                    ImGuiUtil.HoverTooltip($"需求 {item.Required} − 物品欄 {item.Inventory} − 雇員 {item.RetainerCount} = 尚缺 {item.Remaining}\n不扣除個別推估可製作數量，避免多種物品共用素材時重複計算。");
 
             }
 
