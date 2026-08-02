@@ -145,6 +145,15 @@ namespace Artisan.UI.Tables
                     int invAmount = ShowHQOnly && item.CanBeCrafted ? item.InventoryHQ : item.Inventory;
                     int retainerAmount = ShowHQOnly && item.CanBeCrafted ? item.ReainterCountHQ : item.RetainerCount;
 
+                    // Keep the upstream craftability hint as a visual estimate only. TotalCraftable
+                    // is evaluated per item and must not be used to reduce the shared material shortage.
+                    if (item.CanBeCrafted && retainerAmount + invAmount + item.TotalCraftable >= item.Required)
+                    {
+                        var color = ImGuiColors.TankBlue;
+                        color.W -= 0.6f;
+                        ImGui.TableSetBgColor(ImGuiTableBgTarget.RowBg1, ImGui.ColorConvertFloat4ToU32(color));
+                    }
+
                     if (retainerAmount + invAmount >= item.Required)
                     {
                         var color = ImGuiColors.DalamudOrange;

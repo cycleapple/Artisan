@@ -12,5 +12,5 @@
     "RepoUrl": "https://github.com/cycleapple/Artisan/tree/api13-tw",
     "DalamudApiLevel": 13,
     "DownloadLinkTesting": "https://love.puni.sh/plugins/Artisan/Testing/latest.zip",
-    "ChangeLog": "修正多種物品共用素材時，個別可製作量重複使用同一批素材而讓尚缺數量錯誤歸零；尚缺改為需求量減物品欄與雇員，個別可製作量改為明確的推估欄位。"
+    "ChangeLog": "恢復物品欄、雇員與個別推估可製作量合計足夠時的藍色提示；此提示僅影響介面顏色，不會扣減尚缺數量或採購數量。"
 }

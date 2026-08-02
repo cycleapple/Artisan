@@ -997,6 +997,16 @@ internal class ListEditor : Window, IDisposable
                 ImGui.Text($"－雇員與物品欄合計已有全部所需素材");
             }
 
+            ImGui.PushStyleColor(ImGuiCol.Button, ImGuiColors.TankBlue);
+            ImGui.BeginDisabled(true);
+            ImGui.Button("", new Vector2(23, 23));
+            ImGui.EndDisabled();
+            ImGui.PopStyleColor();
+            ImGui.SameLine();
+            ImGui.SetCursorPosX(ImGui.GetCursorPosX() - 7);
+            ImGui.Text($"－物品欄{(RetainerInfo.ATools ? "、雇員" : "")}與個別推估可製作量合計足夠");
+            ImGuiComponents.HelpMarker("此為各項目獨立計算的視覺提示；多種物品可能共用同一批素材，因此不會用來扣減尚缺數量或採購數量。");
+
         }
 
 
