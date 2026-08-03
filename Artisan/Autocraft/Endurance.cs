@@ -368,6 +368,33 @@ namespace Artisan.Autocraft
                     return;
                 }
 
+                if (config.SolverType.Contains("Raphael"))
+                {
+                    var craft = Crafting.BuildCraftStateForRecipe(CharacterStats.GetCurrentStats(), CharacterInfo.JobID, recipe);
+                    if (craft != null && !RaphaelCache.HasSolution(craft, out _))
+                    {
+                        var status = RaphaelCache.GetGenerationStatus(RecipeID);
+                        if (status == RaphaelCache.GenerationStatus.Failed)
+                        {
+                            DuoLog.Error($"Raphael 無法為配方 {RecipeID} 產生解法：{RaphaelCache.GetFailure(RecipeID)} 已停止耐久製作，且不會改用 Standard。");
+                            ToggleEndurance(false);
+                            return;
+                        }
+
+                        if (status != RaphaelCache.GenerationStatus.InProgress)
+                        {
+                            RaphaelCache.Build(craft, new RaphaelSolutionConfig
+                            {
+                                EnsureReliability = P.Config.RaphaelSolverConfig.AllowEnsureReliability,
+                                BackloadProgress = P.Config.RaphaelSolverConfig.AllowBackloadProgress,
+                                HeartAndSoul = P.Config.RaphaelSolverConfig.ShowSpecialistSettings && craft.Specialist,
+                                QuickInno = P.Config.RaphaelSolverConfig.ShowSpecialistSettings && craft.Specialist,
+                            });
+                        }
+                        return;
+                    }
+                }
+
                 if (Crafting.CurState is Crafting.State.IdleBetween or Crafting.State.IdleNormal && !PreCrafting.Occupied())
                 {
                     if (!P.TM.IsBusy)
