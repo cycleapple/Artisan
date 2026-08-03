@@ -206,7 +206,13 @@ namespace Artisan.CraftingLogic.Solvers
                         }
                         else
                         {
-                            var crafts = AllValidCrafts(key, craft.Recipe.CraftType.RowId).ToList();
+                            // Always include the recipe that produced the solution,
+                            // even if a future sheet variant does not match the
+                            // compatibility scan.
+                            var crafts = AllValidCrafts(key, craft.Recipe.CraftType.RowId)
+                                .Append(craft)
+                                .DistinctBy(x => x.Recipe.RowId)
+                                .ToList();
                             Svc.Log.Information($"Applying solver to {crafts.Count} recipes.");
                             var nopt = CraftingProcessor.GetAvailableSolversForRecipe(craft, true).FirstOrNull(x => x.Name == $"Raphael Recipe Solver");
                             if (nopt is { } opt)
@@ -246,10 +252,17 @@ namespace Artisan.CraftingLogic.Solvers
         public static IEnumerable<CraftState> AllValidCrafts(string key, uint craftType)
         {
             var stats = KeyParts(key);
-            var recipes = LuminaSheets.RecipeSheet.Values.Where(x => x.CraftType.RowId == craftType && x.RecipeLevelTable.Value.ClassJobLevel == stats.Level);
+            var recipes = LuminaSheets.RecipeSheet.Values.Where(x =>
+                x.CraftType.RowId == craftType &&
+                (x.Number == 0 || x.RecipeLevelTable.Value.ClassJobLevel == stats.Level));
             foreach (var recipe in recipes)
             {
-                var state = Crafting.BuildCraftStateForRecipe(default, (Job)((uint)Job.CRP + recipe.CraftType.RowId), recipe);
+                // Cosmic recipes (Number == 0) use the active job level to select
+                // their effective RecipeLevelTable. Supplying default stats here
+                // made auto-switch filter every cosmic recipe out, including the
+                // recipe that just generated this Raphael solution.
+                var characterStats = new CharacterStats { Level = stats.Level };
+                var state = Crafting.BuildCraftStateForRecipe(characterStats, (Job)((uint)Job.CRP + recipe.CraftType.RowId), recipe);
                 if (stats.Prog == state.CraftProgress &&
                     stats.Qual == state.CraftQualityMax &&
                     stats.Dur == state.CraftDurability)
