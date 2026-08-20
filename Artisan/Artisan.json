@@ -12,5 +12,5 @@
     "RepoUrl": "https://github.com/cycleapple/Artisan/tree/api13-tw",
     "DalamudApiLevel": 13,
     "DownloadLinkTesting": "https://love.puni.sh/plugins/Artisan/Testing/latest.zip",
-    "ChangeLog": "恢復物品欄、雇員與個別推估可製作量合計足夠時的藍色提示；此提示僅影響介面顏色，不會扣減尚缺數量或採購數量。"
+    "ChangeLog": "修正宇宙探索動態配方選取：精確定位配方、限制重試頻率並加入 15 秒逾時；IPC 僅在確認選中指定配方後啟動製作，失敗原因可由 Raphael 狀態介面取得；另防止未選配方時讀取 Material Miracle 設定。"
 }

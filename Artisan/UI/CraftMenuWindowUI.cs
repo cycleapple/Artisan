@@ -100,7 +100,7 @@ namespace Artisan.UI
                 }
 			}
 
-			if (Crafting.MaterialMiracleCharges() > 0)
+			if (Endurance.RecipeID != 0 && Crafting.MaterialMiracleCharges() > 0)
 			{
 				bool useMatMiracle = LuminaSheets.RecipeSheet[Endurance.RecipeID].IsExpert ? P.Config.ExpertSolverConfig.UseMaterialMiracle : P.Config.UseMaterialMiracle;
 				int delayMatMiracle = LuminaSheets.RecipeSheet[Endurance.RecipeID].IsExpert ? P.Config.ExpertSolverConfig.MinimumStepsBeforeMiracle : P.Config.MinimumStepsBeforeMiracle;

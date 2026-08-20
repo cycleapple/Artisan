@@ -10,12 +10,16 @@ using ECommons.DalamudServices;
 using ECommons.Logging;
 using OtterGui;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 
 namespace Artisan.IPC
 {
     internal static class IPC
     {
+        private const int CosmicRecipeSelectionTimeoutMs = 15_000;
+        private static readonly ConcurrentDictionary<ushort, string> CraftRequestFailures = new();
+
         private static bool stopCraftingRequest;
 
         public static bool StopCraftingRequest
@@ -116,6 +120,8 @@ namespace Artisan.IPC
 
         public unsafe static void CraftX(ushort recipeId, int amount)
         {
+            CraftRequestFailures.TryRemove(recipeId, out _);
+
             if (LuminaSheets.RecipeSheet!.TryGetFirst(x => x.Value.RowId == recipeId, out var recipe))
             {
                 var recipeConfig = P.Config.RecipeConfigs.GetValueOrDefault(recipeId);
@@ -161,13 +167,42 @@ namespace Artisan.IPC
             }
         }
 
-        private static void QueueCraftX(Lumina.Excel.Sheets.Recipe recipe, ushort recipeId, int amount)
+        private static unsafe void QueueCraftX(Lumina.Excel.Sheets.Recipe recipe, ushort recipeId, int amount)
         {
+            var selectionDeadline = Environment.TickCount64 + CosmicRecipeSelectionTimeoutMs;
+            var selectionFailed = false;
+
             PreCrafting.Tasks.Add((() => PreCrafting.TaskSelectRecipe(recipe), TimeSpan.FromMilliseconds(500)));
-            P.TM.Enqueue(() => PreCrafting.Tasks.Count == 0);
+            P.TM.Enqueue(() =>
+            {
+                if (PreCrafting.Tasks.Count == 0)
+                    return true;
+
+                if (Environment.TickCount64 < selectionDeadline)
+                    return false;
+
+                selectionFailed = true;
+                PreCrafting.Tasks.Clear();
+                var reason = $"無法在 {CosmicRecipeSelectionTimeoutMs / 1000} 秒內選中宇宙配方 {recipeId}。";
+                CraftRequestFailures[recipeId] = reason;
+                DuoLog.Error(reason);
+                return true;
+            }, CosmicRecipeSelectionTimeoutMs + 5_000, true, $"WaitingForCosmicRecipe:{recipeId}");
             P.TM.DelayNext(100);
             P.TM.Enqueue(() =>
             {
+                if (selectionFailed)
+                    return;
+
+                var selectedRecipe = Operations.GetSelectedRecipeEntry();
+                if (recipe.Number == 0 && (selectedRecipe == null || selectedRecipe->RecipeId != recipeId))
+                {
+                    var reason = $"宇宙製作手冊未選中配方 {recipeId}，已拒絕啟動製作。";
+                    CraftRequestFailures[recipeId] = reason;
+                    DuoLog.Error(reason);
+                    return;
+                }
+
                 Endurance.IPCOverride = true;
                 Endurance.RecipeID = recipeId;
                 P.Config.CraftX = amount;
@@ -181,9 +216,15 @@ namespace Artisan.IPC
             return RaphaelCache.InProgressAny() || Endurance.Enable || CraftingListUI.Processing || P.TM.NumQueuedTasks > 0 || P.CTM.NumQueuedTasks > 0 || !(Crafting.CurState is Crafting.State.IdleBetween or Crafting.State.IdleNormal);
         }
 
-        private static int GetRaphaelStatus(ushort recipeId) => (int)RaphaelCache.GetGenerationStatus(recipeId);
+        private static int GetRaphaelStatus(ushort recipeId)
+            => CraftRequestFailures.ContainsKey(recipeId)
+                ? (int)RaphaelCache.GenerationStatus.Failed
+                : (int)RaphaelCache.GetGenerationStatus(recipeId);
 
-        private static string GetRaphaelFailure(ushort recipeId) => RaphaelCache.GetFailure(recipeId);
+        private static string GetRaphaelFailure(ushort recipeId)
+            => CraftRequestFailures.TryGetValue(recipeId, out var reason)
+                ? reason
+                : RaphaelCache.GetFailure(recipeId);
 
         public enum ArtisanMode
         {

@@ -11,6 +11,7 @@ using ECommons.Automation;
 using ECommons.DalamudServices;
 using ECommons.ExcelServices;
 using ECommons.Logging;
+using ECommons.Throttlers;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.UI;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
@@ -494,7 +495,8 @@ public unsafe static class PreCrafting
 
             if (addon == null)
             {
-                AgentRecipeNote.Instance()->OpenRecipeByRecipeId(recipe.RowId);
+                if (EzThrottler.Throttle($"OpenCosmicRecipe:{recipe.RowId}", 500))
+                    AgentRecipeNote.Instance()->OpenRecipeByRecipeId(recipe.RowId);
                 return TaskResult.Retry;
             }
 
@@ -502,19 +504,17 @@ public unsafe static class PreCrafting
             if (rd == null)
                 return TaskResult.Retry;
 
-            for (int i = 0; i < rd->RecipesCount; i++)
+            var target = rd->FindRecipeById(recipe.RowId);
+            if (target == null)
+                return TaskResult.Retry;
+
+            try
             {
-                try
-                {
-                    Callback.Fire(addon, false, 0, i);
-                    re = Operations.GetSelectedRecipeEntry();
-                    if (re != null && re->RecipeId == recipe.RowId)
-                        return TaskResult.Done;
-                }
-                catch (Exception ex)
-                {
-                    return TaskResult.Done;
-                }
+                Callback.Fire(addon, false, 0, (int)(target - rd->Recipes));
+            }
+            catch
+            {
+                return TaskResult.Retry;
             }
         }
         else
