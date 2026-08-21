@@ -368,7 +368,7 @@ namespace Artisan.Autocraft
                     return;
                 }
 
-                if (config.SolverType.Contains("Raphael"))
+                if (config.CurrentSolverType.Contains("Raphael"))
                 {
                     var craft = Crafting.BuildCraftStateForRecipe(CharacterStats.GetCurrentStats(), CharacterInfo.JobID, recipe);
                     if (craft != null && !RaphaelCache.HasSolution(craft, out _))

@@ -462,7 +462,7 @@ namespace Artisan.CraftingLogic.Solvers
                     var failure = GetFailure(craft.RecipeId);
                     if (!string.IsNullOrEmpty(failure))
                         ImGuiEx.TextWrapped(ImGuiColors.DalamudRed, $"上次求解失敗：{failure}\n請調整設定後按下方按鈕手動重試。");
-                    if (P.Config.RaphaelSolverConfig.AutoGenerate && CraftingProcessor.GetAvailableSolversForRecipe(craft, true).Any() && (!craft.CraftExpert || (craft.CraftExpert && P.Config.RaphaelSolverConfig.GenerateOnExperts)))
+                    if (config.TempSolverType.Length == 0 && P.Config.RaphaelSolverConfig.AutoGenerate && CraftingProcessor.GetAvailableSolversForRecipe(craft, true).Any() && (!craft.CraftExpert || (craft.CraftExpert && P.Config.RaphaelSolverConfig.GenerateOnExperts)))
                     {
                         if (liveStats && Player.JobId == craft.Recipe.CraftType.RowId + 8)
                         {

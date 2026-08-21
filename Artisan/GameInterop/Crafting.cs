@@ -366,7 +366,7 @@ public static unsafe class Crafting
             CurCraft.InitialQuality = InitialQuality;
             if (P.Config.RecipeConfigs.TryGetValue(CurRecipe.Value.RowId, out var rc))
             {
-                if (rc.SolverType.Contains("Raphael") && !RaphaelCache.HasSolution(CurCraft, out _))
+                if (rc.CurrentSolverType.Contains("Raphael") && !RaphaelCache.HasSolution(CurCraft, out _))
                 {
                     var key = RaphaelCache.GetKey(CurCraft);
                     if (RaphaelCache.Tasks.ContainsKey(key))

@@ -12,5 +12,5 @@
     "RepoUrl": "https://github.com/cycleapple/Artisan/tree/api13-tw",
     "DalamudApiLevel": 13,
     "DownloadLinkTesting": "https://love.puni.sh/plugins/Artisan/Testing/latest.zip",
-    "ChangeLog": "修正宇宙探索動態配方選取：精確定位配方、限制重試頻率並加入 15 秒逾時；IPC 僅在確認選中指定配方後啟動製作，失敗原因可由 Raphael 狀態介面取得；另防止未選配方時讀取 Material Miracle 設定。"
+    "ChangeLog": "新增具輸入驗證與完整清除生命週期的暫時製作設定 IPC，供 ICE 安全指定單次任務的求解器、食物與藥水；覆寫不寫入設定檔，且可逐配方或整批還原。"
 }

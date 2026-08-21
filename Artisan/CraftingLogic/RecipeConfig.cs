@@ -19,6 +19,7 @@ using System.Linq;
 using System.Numerics;
 using ECommons.GameHelpers;
 using System.Diagnostics.Tracing;
+using Newtonsoft.Json;
 
 namespace Artisan.CraftingLogic;
 
@@ -27,6 +28,35 @@ public class RecipeConfig
     public const uint Default = 0;
     public const uint Disabled = 1;
 
+    [NonSerialized, JsonIgnore]
+    public string TempSolverType = "";
+    [NonSerialized, JsonIgnore]
+    public int TempSolverFlavour = -1;
+    [NonSerialized, JsonIgnore]
+    public uint? TempRequiredFood;
+    [NonSerialized, JsonIgnore]
+    public bool TempRequiredFoodHQ;
+    [NonSerialized, JsonIgnore]
+    public uint? TempRequiredPotion;
+    [NonSerialized, JsonIgnore]
+    public bool TempRequiredPotionHQ;
+
+    public string CurrentSolverType => TempSolverType.Length > 0 ? TempSolverType : SolverType;
+    public int CurrentSolverFlavour => TempSolverFlavour >= 0 ? TempSolverFlavour : SolverFlavour;
+    public uint CurrentRequiredFood => TempRequiredFood ?? requiredFood;
+    public bool CurrentRequiredFoodHQ => TempRequiredFood.HasValue ? TempRequiredFoodHQ : requiredFoodHQ;
+    public uint CurrentRequiredPotion => TempRequiredPotion ?? requiredPotion;
+    public bool CurrentRequiredPotionHQ => TempRequiredPotion.HasValue ? TempRequiredPotionHQ : requiredPotionHQ;
+
+    public void ClearTemporaryOverrides()
+    {
+        TempSolverType = "";
+        TempSolverFlavour = -1;
+        TempRequiredFood = null;
+        TempRequiredFoodHQ = false;
+        TempRequiredPotion = null;
+        TempRequiredPotionHQ = false;
+    }
 
     public string SolverType = ""; // TODO: ideally it should be a Type?, but that causes problems for serialization
     public int SolverFlavour;
@@ -44,12 +74,12 @@ public class RecipeConfig
     public bool SquadronManualEnabled => RequiredSquadronManual != Disabled;
 
 
-    public uint RequiredFood => requiredFood == Default ? P.Config.DefaultConsumables.requiredFood : requiredFood;
-    public uint RequiredPotion => requiredPotion == Default ? P.Config.DefaultConsumables.requiredPotion : requiredPotion;
+    public uint RequiredFood => CurrentRequiredFood == Default ? P.Config.DefaultConsumables.requiredFood : CurrentRequiredFood;
+    public uint RequiredPotion => CurrentRequiredPotion == Default ? P.Config.DefaultConsumables.requiredPotion : CurrentRequiredPotion;
     public uint RequiredManual => requiredManual == Default ? P.Config.DefaultConsumables.requiredManual : requiredManual;
     public uint RequiredSquadronManual => requiredSquadronManual == Default ? P.Config.DefaultConsumables.requiredSquadronManual : requiredSquadronManual;
-    public bool RequiredFoodHQ => requiredFood == Default ? P.Config.DefaultConsumables.requiredFoodHQ : requiredFoodHQ;
-    public bool RequiredPotionHQ => requiredPotion == Default ? P.Config.DefaultConsumables.requiredPotionHQ : requiredPotionHQ;
+    public bool RequiredFoodHQ => CurrentRequiredFood == Default ? P.Config.DefaultConsumables.requiredFoodHQ : CurrentRequiredFoodHQ;
+    public bool RequiredPotionHQ => CurrentRequiredPotion == Default ? P.Config.DefaultConsumables.requiredPotionHQ : CurrentRequiredPotionHQ;
 
     
     public string FoodName => requiredFood == Default ? $"{P.Config.DefaultConsumables.FoodName}（預設）" : RequiredFood == Disabled ? "已停用" : $"{(RequiredFoodHQ ? " " : "")}{ConsumableChecker.Food.FirstOrDefault(x => x.Id == RequiredFood).Name}";
