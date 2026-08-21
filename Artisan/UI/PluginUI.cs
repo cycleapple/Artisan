@@ -512,6 +512,12 @@ namespace Artisan.UI
                         P.Config.Save();
                     }
 
+                    if (ImGui.Checkbox("附近有其他玩家時模擬遊戲巨集延遲", ref P.Config.ReplicateMacroDelayWhenPlayersNearby))
+                    {
+                        P.Config.Save();
+                    }
+                    ImGuiComponents.HelpMarker("偵測到其他已載入的玩家角色時，暫時改用遊戲巨集延遲；否則維持自訂延遲。");
+
                     if (!P.Config.ReplicateMacroDelay)
                     {
                         var delay = P.Config.AutoDelay;

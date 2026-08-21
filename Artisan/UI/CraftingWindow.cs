@@ -6,6 +6,7 @@ using Artisan.GameInterop;
 using Artisan.RawInformation;
 using Artisan.RawInformation.Character;
 using Dalamud.Game.Gui.Toast;
+using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Interface;
 using Dalamud.Interface.Colors;
 using Dalamud.Interface.Utility.Raii;
@@ -15,6 +16,7 @@ using ECommons.ImGuiMethods;
 using ECommons.Logging;
 using Dalamud.Bindings.ImGui;
 using System;
+using System.Linq;
 
 namespace Artisan.UI
 {
@@ -106,6 +108,13 @@ namespace Artisan.UI
 
             if (autoMode && !P.Config.ReplicateMacroDelay)
             {
+                if (P.Config.ReplicateMacroDelayWhenPlayersNearby)
+                {
+                    var playersNearby = ShouldReplicateMacroDelay();
+                    ImGuiEx.Text(playersNearby ? ImGuiColors.DalamudYellow : ImGuiColors.DalamudWhite,
+                        playersNearby ? "附近有其他玩家：已模擬遊戲巨集延遲" : "附近沒有其他玩家：使用自訂延遲");
+                }
+
                 var delay = P.Config.AutoDelay;
                 ImGui.PushItemWidth(200);
                 if (ImGui.SliderInt("執行延遲（毫秒）", ref delay, 0, 1000))
@@ -208,7 +217,8 @@ namespace Artisan.UI
             ShowRecommendation(recommendation.Action);
             if (P.Config.AutoMode || Endurance.IPCOverride)
             {
-                if (!P.Config.ReplicateMacroDelay)
+                var replicateMacroDelay = ShouldReplicateMacroDelay();
+                if (!replicateMacroDelay)
                     P.CTM.DelayNext(P.Config.AutoDelay);
                 P.CTM.Enqueue(() => Crafting.CurState == Crafting.State.InProgress, 3000, true, "WaitForStateToUseAction");
                 var recommendationStep = step.Index;
@@ -224,9 +234,22 @@ namespace Artisan.UI
 
                     return ActionManagerEx.UseSkill(recommendation.Action);
                 });
-                if (P.Config.ReplicateMacroDelay)
+                if (replicateMacroDelay)
                     P.CTM.DelayNext(Calculations.ActionIsLengthyAnimation(recommendation.Action) ? 3000 : 2000);
             }
+        }
+
+        private static bool ShouldReplicateMacroDelay()
+        {
+            if (P.Config.ReplicateMacroDelay)
+                return true;
+
+            var localPlayer = Svc.ClientState.LocalPlayer;
+            return P.Config.ReplicateMacroDelayWhenPlayersNearby
+                   && localPlayer != null
+                   && Svc.Objects.OfType<IPlayerCharacter>().Any(player =>
+                       player.EntityId != localPlayer.EntityId
+                       && !string.IsNullOrEmpty(player.Name.TextValue));
         }
     }
 }

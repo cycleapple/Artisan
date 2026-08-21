@@ -55,6 +55,7 @@ namespace Artisan
         public List<NewCraftingList> NewCraftingLists { get; set; } = new();
 
         public bool ReplicateMacroDelay = false;
+        public bool ReplicateMacroDelayWhenPlayersNearby = false;
         public int AutoDelay = 0;
         public bool DelayRecommendation = false;
         public int RecommendationDelay = 0;
