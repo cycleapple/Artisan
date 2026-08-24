@@ -12,5 +12,5 @@
     "RepoUrl": "https://github.com/cycleapple/Artisan/tree/api13-tw",
     "DalamudApiLevel": 13,
     "DownloadLinkTesting": "https://love.puni.sh/plugins/Artisan/Testing/latest.zip",
-    "ChangeLog": "新增具輸入驗證與完整清除生命週期的暫時製作設定 IPC，供 ICE 安全指定單次任務的求解器、食物與藥水；另可選擇在附近有其他玩家時自動改用遊戲巨集延遲。兩項功能皆預設不改變既有行為。"
+    "ChangeLog": "修正宇宙探索收藏品的低、中、高品質門檻計算；選擇最低品質時不再錯誤要求製作至滿品質。"
 }
