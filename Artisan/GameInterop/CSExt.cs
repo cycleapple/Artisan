@@ -1,4 +1,4 @@
-﻿using ECommons;
+using ECommons;
 using ECommons.Automation;
 using ECommons.DalamudServices;
 using ECommons.Logging;
@@ -94,7 +94,7 @@ public unsafe struct RecipeNoteRecipeData
 
     [FieldOffset(0x000)] public RecipeNoteRecipeEntry* Recipes; // note: can be null
     [FieldOffset(0x008)] public int RecipesCount;
-    [FieldOffset(0x448)] public ushort SelectedIndex;
+    [FieldOffset(0x458)] public ushort SelectedIndex;
 
     public RecipeNoteRecipeEntry* FindRecipeById(uint id)
     {
