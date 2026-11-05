@@ -1,4 +1,4 @@
-﻿using Artisan.Autocraft;
+using Artisan.Autocraft;
 using Artisan.CraftingLogic;
 using Artisan.CraftingLogic.CraftData;
 using Artisan.CraftingLogic.Solvers;
@@ -149,7 +149,7 @@ public static unsafe class Crafting
 
                 // Satisfaction Supply Recipes
                 case 3:
-                    var satisfactionRow = ECommons.GenericHelpers.FindRow<SatisfactionSupply>(x => x.Item.Value.RowId == recipe.ItemResult.RowId);
+                    var satisfactionRow = Svc.Data.GetSubrowExcelSheet<SatisfactionSupply>()!.SelectMany(group => group).Where(x => x.Item.RowId == recipe.ItemResult.RowId).Select(row => (SatisfactionSupply?)row).FirstOrDefault();
                     if (satisfactionRow.HasValue)
                     {
                         res.CraftQualityMin1 = satisfactionRow.Value.CollectabilityLow * 10;
@@ -190,7 +190,7 @@ public static unsafe class Crafting
                     break;
                 // Check for any other Generic Collectable
                 default:
-                    var genericRow = ECommons.GenericHelpers.FindRow<CollectablesShopItem>(x => x.Item.Value.RowId == recipe.ItemResult.RowId);
+                    var genericRow = Svc.Data.GetSubrowExcelSheet<CollectablesShopItem>()!.SelectMany(group => group).Where(x => x.Item.RowId == recipe.ItemResult.RowId).Select(row => (CollectablesShopItem?)row).FirstOrDefault();
                     if (genericRow is { CollectablesShopRefine: { } breakpoints })
                     {
                         res.CraftQualityMin1 = breakpoints.Value.LowCollectability * 10;
@@ -621,7 +621,7 @@ public static unsafe class Crafting
         return ret;
     }
 
-    private static Dalamud.Game.ClientState.Statuses.Status? GetStatus(uint statusID) => Svc.ClientState.LocalPlayer?.StatusList.FirstOrDefault(s => s.StatusId == statusID);
+    private static Dalamud.Game.ClientState.Statuses.IStatus? GetStatus(uint statusID) => Svc.ClientState.LocalPlayer?.StatusList.FirstOrDefault(s => s.StatusId == statusID);
 
     private static void CraftingEventHandlerUpdateDetour(CraftingEventHandler* self, nint a2, nint a3, CraftingEventHandler.OperationId* payload)
     {

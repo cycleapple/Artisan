@@ -1,4 +1,4 @@
-﻿using Dalamud.Game.ClientState.Statuses;
+using Dalamud.Game.ClientState.Statuses;
 using Dalamud.Utility.Signatures;
 using ECommons.DalamudServices;
 using ECommons.ExcelServices;
@@ -38,7 +38,7 @@ namespace Artisan.RawInformation.Character
 
         public static unsafe int Control;
 
-        public static unsafe Dalamud.Game.ClientState.Statuses.Status? FCCraftsmanshipbuff;
+        public static unsafe Dalamud.Game.ClientState.Statuses.IStatus? FCCraftsmanshipbuff;
 
         public static unsafe int JobLevel(Job job) => PlayerState.Instance()->ClassJobLevels[Svc.Data.GetExcelSheet<ClassJob>()?.GetRow((uint)job).ExpArrayIndex ?? 0];
 

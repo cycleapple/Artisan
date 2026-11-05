@@ -1,4 +1,4 @@
-﻿using Artisan.Autocraft;
+using Artisan.Autocraft;
 using Artisan.GameInterop;
 using Artisan.RawInformation;
 using Artisan.UI;
@@ -422,7 +422,7 @@ namespace Artisan.CraftingLogic.Solvers
                     else
                     {
                         ImGuiEx.TextCentered($"解法索引鍵：{key}");
-                        var playerIsJob = Player.JobId == craft.Recipe.CraftType.RowId + 8;
+                        var playerIsJob = Player.ClassJob.RowId == craft.Recipe.CraftType.RowId + 8;
                         var parts = KeyParts(key);
                         if (!playerIsJob)
                             ImGuiEx.TextCentered(ImGuiColors.DalamudOrange, "目前不是對應製作職業。");
@@ -464,7 +464,7 @@ namespace Artisan.CraftingLogic.Solvers
                         ImGuiEx.TextWrapped(ImGuiColors.DalamudRed, $"上次求解失敗：{failure}\n請調整設定後按下方按鈕手動重試。");
                     if (config.TempSolverType.Length == 0 && P.Config.RaphaelSolverConfig.AutoGenerate && CraftingProcessor.GetAvailableSolversForRecipe(craft, true).Any() && (!craft.CraftExpert || (craft.CraftExpert && P.Config.RaphaelSolverConfig.GenerateOnExperts)))
                     {
-                        if (liveStats && Player.JobId == craft.Recipe.CraftType.RowId + 8)
+                        if (liveStats && Player.ClassJob.RowId == craft.Recipe.CraftType.RowId + 8)
                         {
                             Build(craft, TempConfigs[key]);
                         }

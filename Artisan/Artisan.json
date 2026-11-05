@@ -10,7 +10,7 @@
         "crafting"
     ],
     "RepoUrl": "https://github.com/cycleapple/Artisan/tree/api13-tw",
-    "DalamudApiLevel": 13,
+    "DalamudApiLevel": 14,
     "DownloadLinkTesting": "https://love.puni.sh/plugins/Artisan/Testing/latest.zip",
     "ChangeLog": "修正宇宙探索收藏品的低、中、高品質門檻計算；選擇最低品質時不再錯誤要求製作至滿品質。"
 }

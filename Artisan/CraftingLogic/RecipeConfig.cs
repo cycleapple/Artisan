@@ -1,4 +1,4 @@
-﻿using Artisan.Autocraft;
+using Artisan.Autocraft;
 using Artisan.CraftingLogic.Solvers;
 using Artisan.GameInterop;
 using Artisan.RawInformation;
@@ -103,7 +103,7 @@ public class RecipeConfig
         changed |= DrawPotion();
         changed |= DrawManual();
         changed |= DrawSquadronManual();
-        changed |= DrawSolver(craft, liveStats: Player.JobId == craft.Recipe.CraftType.RowId + 8);
+        changed |= DrawSolver(craft, liveStats: Player.ClassJob.RowId == craft.Recipe.CraftType.RowId + 8);
         DrawSimulator(craft);
         return changed;
     }

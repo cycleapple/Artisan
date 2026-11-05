@@ -1,0 +1,20 @@
+[
+  {
+    "path": "OtterGui",
+    "baseCommit": "995e6a180cc30c96c780c1c1b9e18aad1cf47624",
+    "patch": "patches/fa3971c4e08c8077.patch",
+    "sha256": "3cca454cae7e6b11447342ab2e4c7aaef4e252d6336c2215a9e2bcd11a12dcae"
+  },
+  {
+    "path": "PunishLib",
+    "baseCommit": "16a93f6cf81aa42ed8bbe88297a5e10d2fee6c3d",
+    "patch": "patches/0b680675a0e45218.patch",
+    "sha256": "e16f93525fc76daa1576196b581652ab06ce633a100fb52f68c67da848284dde"
+  },
+  {
+    "path": "OtterGui/OtterGuiInternal",
+    "baseCommit": "49631aab5c267953f9d442546488ea3bfdf52fa7",
+    "patch": "patches/83d6c41b4082a781.patch",
+    "sha256": "9997cf5bc08788acb336cb58a8405138ba9a14a407dd295f4ccbd1bd4cafd5a1"
+  }
+]

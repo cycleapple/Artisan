@@ -1,4 +1,4 @@
-﻿using Artisan.RawInformation.Character;
+using Artisan.RawInformation.Character;
 using ECommons.DalamudServices;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.UI;
@@ -33,7 +33,8 @@ public static unsafe class ActionManagerEx
         module->AfkTimer = 0;
         module->ContentInputTimer = 0;
         module->InputTimer = 0;
-        module->Unk1C = 0;
+
+        // API14 follows upstream: reset the three public input timers only.
         return true;
     }
 

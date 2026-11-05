@@ -1,4 +1,4 @@
-﻿using Artisan.RawInformation.Character;
+using Artisan.RawInformation.Character;
 using ECommons;
 using ECommons.DalamudServices;
 using Lumina.Excel.Sheets;
@@ -244,8 +244,8 @@ namespace Artisan.RawInformation
                 //Get the MissionToDo from the MissionUnit
                 var missionToDo = Svc.Data.GetExcelSheet<WKSMissionToDo>().GetRow(missionUnit.MissionToDo[0].RowId);
 
-                //Svc.Log.Verbose($"{id} -> {missionRec.RowId} -> {missionUnit.RowId} -> {missionToDo.RowId} -> {missionToDo.Unknown0}");
-                return missionToDo.Unknown0 == (uint)Skills.MaterialMiracle;
+                //Svc.Log.Verbose($"{id} -> {missionRec.RowId} -> {missionUnit.RowId} -> {missionToDo.RowId} -> {missionToDo.TemporaryAction.RowId}");
+                return missionToDo.TemporaryAction.RowId == (uint)Skills.MaterialMiracle;
             }
             catch(Exception e)
             {
